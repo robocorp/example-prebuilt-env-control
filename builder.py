@@ -20,18 +20,17 @@ def get_env_file(url: str) -> str:
     logging.info(f"downloaded the file {filename}")
     return filename
 
-def rcc_prebuild(filename: str):
+def rcc_prebuild(filename: str, output_filename: str):
     rcc_path = os.environ.get("RCC_EXE", "rcc")
-    command = [rcc_path, "ht", "prebuild", filename, "--export", "holotree.zip"]
+    command = [rcc_path, "ht", "prebuild", "--export", output_filename, filename]
     if filename == "conda.yaml":
-        command.append("--force")
+        command.insert(3, "--force")
     result = subprocess.run(command, capture_output=True, text=True, shell=True)
     logging.debug(f"RCC stdout: {result.stdout}")
     logging.debug(f"RCC stderr: {result.stderr}")
     os.remove(filename)
 
 def upload_to_s3(filename: str, bucket_name: str):
-    bucket_name = "prebuild-demo"
     _secret = Vault().get_secret("s3secret")
 
     s3_key = _secret["key"]
@@ -50,9 +49,7 @@ def upload_to_s3(filename: str, bucket_name: str):
         s3.upload_fileobj(f, bucket_name, dest_name)
 
     logging.info(f"File '{dest_name}' uploaded to S3 bucket '{bucket_name}'")
-    holotree_url = f"{s3.meta.endpoint_url}/{bucket_name}/{dest_name}"
-    logging.info(holotree_url)
-    wi.create_output_work_item({"holotree_location": holotree_url}, save=True)
+    wi.create_output_work_item({"holotree_location": dest_name, "bucket": bucket_name}, save=True)
     os.remove(HOLOLIB_ZIP)
 
 if __name__ == "__main__":
@@ -64,5 +61,5 @@ if __name__ == "__main__":
     bucket_name = variables.get("bucket")
 
     filename = get_env_file(url)
-    rcc_prebuild(filename)
+    rcc_prebuild(filename, HOLOLIB_ZIP)
     upload_to_s3(HOLOLIB_ZIP, bucket_name)

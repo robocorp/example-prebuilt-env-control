@@ -24,7 +24,7 @@ def download_from_s3(path: str):
         region_name='eu-west-1'
     )
 
-    s3_bucket = variables.get("bucket_name")
+    s3_bucket = variables["bucket"]
     s3.download_file(s3_bucket, path, HOLOLIB_ZIP)
 
 def rcc_import() -> str:
@@ -36,7 +36,6 @@ def rcc_import() -> str:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     url = variables["holotree_location"]
-    storage_type = variables["type"]
 
     download_from_s3(url)
     rcc_import()

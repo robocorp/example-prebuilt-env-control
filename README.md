@@ -11,6 +11,7 @@ Robot for creating pre-built environments:
 
 
 ## Importer
+
 Robot the "publishes" pre-built environments to RCC Remote.
 This robot is meant to be executed on the machine that is running rcc-remote service.
 
@@ -22,3 +23,17 @@ This robot is meant to be executed on the machine that is running rcc-remote ser
 Manual approvals, virus scanners, etc.
 
 For more details checkout our [docs on the topic](https://robocorp.com/docs/rcc/pre-built-environments)
+
+## Executing
+
+For running this robot you will need a S3 secret and a workitem that will contain the essential informations.
+The structure for the Vault item is:
+
+* Secret name: s3secret
+  * Value `key` holding your AWS Access Key ID
+  * Value `secret` holding the AWS Access Key
+
+The structure for the Workitem is:
+
+* `bucket`: the value has to be the bucket name used to store the Holotree
+* `url`: the URL that points to the conda.yaml file or the metaconda.lst
